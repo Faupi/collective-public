@@ -1,19 +1,18 @@
-{
-  fetchFromGitHub,
-  lib,
-  python3,
-  pkgs
+{ fetchFromGitHub
+, lib
+, python3
+, pkgs
 }:
 python3.pkgs.buildPythonPackage rec {
   pname = "hhd-adjustor";
-  version = "3.6.4";
+  version = "3.9.2";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "hhd-dev";
     repo = "adjustor";
     rev = "refs/tags/v${version}";
-    hash = "sha256-vtYSOfUmOvULLBULtabL15D82QxC2I00RbvCDrCoI3w=";
+    hash = "sha256-wgS467t9H7M9eZfITfQNRHuvZnF2/UEbYh0ShLK2Low=";
   };
 
   propagatedBuildInputs = (with python3.pkgs; [
