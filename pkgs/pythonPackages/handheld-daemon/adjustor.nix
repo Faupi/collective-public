@@ -28,6 +28,7 @@ python3.pkgs.buildPythonPackage rec {
     glib
     busybox
     gobject-introspection
+    mount
   ]);
 
   doCheck = false;
