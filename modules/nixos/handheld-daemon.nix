@@ -27,7 +27,7 @@ in
         hhdPython = pkgs.python3.withPackages (ps: [ ps.handheld-daemon-adjustor ]);
         handheld-daemon-with-adjustor = pkgs.handheld-daemon.overrideAttrs (attrs: rec {
           version = "3.17.4";
-          src = fetchFromGitHub {
+          src = pkgs.fetchFromGitHub {
             owner = "hhd-dev";
             repo = "hhd";
             tag = "v${version}";
