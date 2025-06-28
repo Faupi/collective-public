@@ -5,14 +5,14 @@
 }:
 python3.pkgs.buildPythonPackage rec {
   pname = "hhd-adjustor";
-  version = "3.10.3";
+  version = "3.10.5";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "hhd-dev";
     repo = "adjustor";
     rev = "refs/tags/v${version}";
-    hash = "sha256-xq2uhjb0xqpglhDVrS8Kq2Nw9grYoipmHaPo0eVvP3w=";
+    hash = "sha256-DShb1chEkkTRGjQCE708tJABwYERJxajT3nHwHqyKN4=";
   };
 
   propagatedBuildInputs = (with python3.pkgs; [
@@ -28,7 +28,6 @@ python3.pkgs.buildPythonPackage rec {
     glib
     busybox
     gobject-introspection
-    mount
   ]);
 
   doCheck = false;

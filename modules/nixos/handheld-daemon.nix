@@ -4,7 +4,8 @@ with lib;
 
 let
   cfg = config.services.handheld-daemon;
-in {
+in
+{
   options.services.handheld-daemon.adjustor = {
     enable = mkOption {
       type = types.bool;
@@ -21,27 +22,37 @@ in {
   };
 
   config = mkIf (cfg.enable && cfg.adjustor.enable) (mkMerge [
-
-    (let
-      hhdPython = pkgs.python3.withPackages (ps: [ ps.handheld-daemon-adjustor ] );
-      handheld-daemon-with-adjustor = pkgs.handheld-daemon.overrideAttrs (attrs: {
-        nativeBuildInputs = (attrs.nativeBuildInputs or []) ++ [ hhdPython.pkgs.wrapPython ];
-        propagatedBuildInputs = (attrs.propagatedBuildInputs or []) ++ (with pkgs.python3Packages; [
-          handheld-daemon-adjustor
-        ]) ++ (with pkgs; [
-          busybox
-        ]);
-        postFixup = ''
-          wrapProgram "$out/bin/hhd" \
-            --prefix PYTHONPATH : "$PYTHONPATH" \
-            --prefix PATH : "${hhdPython}/bin"
-        '';
-      });
-    in rec {
-      services.handheld-daemon.package = handheld-daemon-with-adjustor;
-      # Adjustor assumes it can talk PPD protocol over dbus
-      services.power-profiles-daemon.enable = true;
-    })
+    (
+      let
+        hhdPython = pkgs.python3.withPackages (ps: [ ps.handheld-daemon-adjustor ]);
+        handheld-daemon-with-adjustor = pkgs.handheld-daemon.overrideAttrs (attrs: rec {
+          version = "3.17.4";
+          src = fetchFromGitHub {
+            owner = "hhd-dev";
+            repo = "hhd";
+            tag = "v${version}";
+            hash = "sha256-406pcIdQeKS5BJjLfaXcauq5U3gVfl8vEgDeFGsAFRs=";
+          };
+          nativeBuildInputs = (attrs.nativeBuildInputs or [ ]) ++ [ hhdPython.pkgs.wrapPython ];
+          propagatedBuildInputs = (attrs.propagatedBuildInputs or [ ]) ++ (with pkgs.python3Packages; [
+            handheld-daemon-adjustor
+          ]) ++ (with pkgs; [
+            busybox
+            mount
+          ]);
+          postFixup = ''
+            wrapProgram "$out/bin/hhd" \
+              --prefix PYTHONPATH : "$PYTHONPATH" \
+              --prefix PATH : "${hhdPython}/bin"
+          '';
+        });
+      in
+      {
+        services.handheld-daemon.package = handheld-daemon-with-adjustor;
+        # Adjustor assumes it can talk PPD protocol over dbus
+        services.power-profiles-daemon.enable = true;
+      }
+    )
 
     (mkIf cfg.adjustor.acpiCall.enable {
       boot.extraModulePackages = [ config.boot.kernelPackages.acpi_call ];
